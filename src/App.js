@@ -1,63 +1,65 @@
 import React, {use, useState, useEffect} from 'react';
 import MovieCard from '../src/components/MovieCard'
+import {useMovies} from '../src/hooks/useMovies'
 import './App.css';
 
 function App() {
 
-  const [movies] = useState([
-    {
-      id: 1,
-      title: 'Начало',
-      poster_path: null,
-      release_date:'2010-07-16',
-      vote_average: 8.8
-    },
-    {
-      id: 2,
-      title: 'Матрица',
-      poster_path: null,
-      release_date: '1999-03-31',
-      vote_average: 8.7
-    },
-    {
-      id: 3,
-      title: 'Зелёная книга',
-      poster_path: null,
-      release_date: '2018-11-16',
-      vote_average: 8.5
-    }
-  ])
+  const { movies, loading, error, loadPopular, search } = useMovies()
 
   const [myList, setMyList] = useState([])
 
   useEffect (()=>{
-    const saved = localStorage.getItem('myMovies')
+    loadPopular()
+  }, [])
 
+  useEffect (()=>{
+    const saved = localStorage.getItem('myMovies')
     if(saved) {
       setMyList(JSON.parse(saved))
     }
   }, [])
-
-  useEffect (()=>{
-    localStorage.setItem('myMovies', JSON.stringify(myList))
-  }, [myList])
 
   const addToList = (movie) => {
     setMyList(prev => {
       if(prev.find(m => m.id === movie.id)) {
         return prev
       }
-      return [...prev, movie]
+      const newList = [...prev, movie]
+      localStorage.setItem('myMovies', JSON.stringify(newList))
+      return newList
     })
   }
 
   const removeFromList = (id) => {
-    setMyList(prev => prev.filter(m => m.id !== id))
-  }
+  setMyList(prev => {
+    const newList = prev.filter(m => m.id !== id)
+    localStorage.setItem('myMovies', JSON.stringify(newList))
+    return newList
+  })
+}
 
   const isInList = (id) => {
     return myList.some(m=>m.id===id)
   }
+
+  if (loading) {
+    return (
+      <div style={styles.center}>
+        <h2>Загрузка фильмов...</h2>
+      </div>
+    )
+  }
+
+  if (error) {
+    return (
+      <div style={styles.center}>
+        <h2 style={{color: 'red'}}>{error}</h2>
+        <button onClick={loadPopular} style={styles.retryBtn}>Попробовать снова</button>
+      </div>
+    )
+  }
+
 
   return (
     <div style={{padding: '20px', background: 'f5f5f5', minHeight: '100vh'}}>
@@ -77,6 +79,27 @@ function App() {
       </div>
     </div>
   );
+}
+
+const styles = {
+  center: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    minHeight: '100vh',
+    background: '#f5f5f5'
+  },
+  retryBtn: {
+    marginTop: '20px',
+    padding: '10px 20px',
+    background: '#667eea',
+    color: 'white',
+    border: 'none',
+    borderRadius: '8px',
+    cursor: 'pointer',
+    fontSize: '16px'
+  }
 }
 
 export default App;

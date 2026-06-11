@@ -51,6 +51,9 @@ const styles = {
   },
   info: {
     padding: '15px',
+    flex: '1',
+    display: 'flex',
+    flexDirection: 'column',
   },
   title: {
     fontSize: '18px',

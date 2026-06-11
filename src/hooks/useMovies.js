@@ -22,27 +22,29 @@ export const useMovies = () => {
         }
     }
     
-    const search = (query) => {
+    const search = async (query) => {
         if (!query.trim()) {
             await loadPopular()
+            return
         }
-        else {
-            setLoading(true)
-            setError(null)
+
+        setLoading(true)
+        setError(null)
         try {
             const data = await searchMovies(query)
             setMovies(data)
         }
-        catch(err) {
-            setError('капец не получилось')
+
+        catch (err) {
+            setError('Ошибка поиска')
             console.error(err)
         }
+
         finally {
-            setLoading(false)
-        }
+        setLoading(false)
         }
     }
-    
+
   return { movies, loading, error, loadPopular, search }
 
 }
