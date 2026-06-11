@@ -1,4 +1,4 @@
-import React, {use, useState} from 'react';
+import React, {use, useState, useEffect} from 'react';
 import MovieCard from '../src/components/MovieCard'
 import './App.css';
 
@@ -30,6 +30,18 @@ function App() {
 
   const [myList, setMyList] = useState([])
 
+  useEffect (()=>{
+    const saved = localStorage.getItem('myMovies')
+
+    if(saved) {
+      setMyList(JSON.parse(saved))
+    }
+  }, [])
+
+  useEffect (()=>{
+    localStorage.setItem('myMovies', JSON.stringify(myList))
+  }, [myList])
+
   const addToList = (movie) => {
     setMyList(prev => {
       if(prev.find(m => m.id === movie.id)) {
@@ -38,8 +50,6 @@ function App() {
       return [...prev, movie]
     })
   }
-
-  const addToList ()
 
   const removeFromList = (id) => {
     setMyList(prev => prev.filter(m => m.id !== id))
