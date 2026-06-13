@@ -41,7 +41,7 @@ export const useMovies = () => {
         }
 
         finally {
-        setLoading(false)
+            setLoading(false)
         }
     }
 
