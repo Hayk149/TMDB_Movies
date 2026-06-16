@@ -48,10 +48,9 @@ function App() {
     return myList.some(m=>m.id===id)
   }
 
-  const handleSearch = () => {
+  const handleSearch = (e) => {
       if (searchQuery.trim()) {
         search(searchQuery)
-        setActiveTab('popular')
       }
   }
 
@@ -63,6 +62,7 @@ function App() {
 
    const handleTabChange = (tab) => {
     setActiveTab(tab)
+    setSearchQuery('')
   if (tab === 'popular') {
     loadPopular()
   }
@@ -100,7 +100,15 @@ const sortMovies = (moviesList) => {
   return sorted
 }
 
-const displayedMovies = activeTab === 'popular' ? movies : myList
+const filterMyList = () => {
+  if (!searchQuery.trim()) return myList
+
+  return myList.filter(movie => {
+    return movie.title.toLowerCase().includes(searchQuery.toLowerCase())
+  })
+}
+
+const displayedMovies = activeTab === 'popular' ? movies : filterMyList()
 const sortedMovies = sortMovies(displayedMovies)
 
   if (loading) {
@@ -145,7 +153,7 @@ const sortedMovies = sortMovies(displayedMovies)
         onKeyPress={handleKeyPress}
         style={styles.searchInput}
         />
-      <button style={styles.searchBtn}>🔍 Найти</button>
+      <button style={styles.searchBtn} onClick={handleSearch}>🔍 Найти</button>
     </div>
 
     <div style={styles.tabs}>
@@ -164,6 +172,10 @@ const sortedMovies = sortMovies(displayedMovies)
           }}>Мой список {myList.length}</button>
     </div>
 
+    {activeTab === 'my-list' && searchQuery && (
+      <div style={styles.searchInfo}>Найдено {sortedMovies.length} фильмов</div>
+    )}
+
       <div style={{display: 'grid', gap: '25px', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', maxWidth: '1200px', margin: '0 auto'}}>
         {sortedMovies.map(movie=>(
           <MovieCard
@@ -178,13 +190,15 @@ const sortedMovies = sortMovies(displayedMovies)
             ))}
       </div>
 
-    {
-      displayedMovies === 0 && (
-        <div style={styles.empty}>
-          ничо нет крч
-        </div>
-      )
-    }
+    {sortedMovies.length === 0 && activeTab === 'my-list' && searchQuery && (
+      <div style={styles.empty}>
+        В вашем списке нет фильмов с таким названием
+      </div>)}
+
+      {sortedMovies.length === 0 && activeTab === 'my-list' && !searchQuery && myList.length === 0 && (
+      <div style={styles.empty}>
+        Ваш список пуст хахаха
+      </div>)}
 
     </div>
   );
@@ -268,7 +282,23 @@ const styles = {
   background: 'white',
   cursor: 'pointer',
   fontWeight: '500'
-}
+},
+  searchInfo: {
+    textAlign: 'center',
+    marginBottom: '20px',
+    padding: '10px',
+    background: '#e3f2fd',
+    borderRadius: '8px',
+    maxWidth: '400px',
+    margin: '0 auto 20px auto',
+    fontSize: '14px'
+  },
+  empty: {
+    textAlign: 'center',
+    padding: '50px',
+    fontSize: '18px',
+    color: '#666'
+  }
 }
 
 /* meow */
